@@ -5,6 +5,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include "rv64gc_config.h"
+#include "doom_iwad.h"
 
 void *_sbrk(int incr)
 {
@@ -43,7 +44,7 @@ int _putc_r(struct _reent *u1, int ch, FILE *u2)
 
 int main()
 {
-    char *argv[] = {"doom", "-iwad", "doom.wad", NULL};
+    char *argv[] = {"doom", "-iwad", DOOM_FILENAME, NULL};
     int argc = sizeof(argv) / sizeof(argv[0]) - 1;
 
     extern void doom_main(int argc, char **argv);
@@ -86,7 +87,7 @@ __attribute__((section(".text.init"), naked, noreturn)) void _start()
     extern uint8_t _sbss;
     extern uint8_t _ebss;
 
-    int bss_size = &_ebss - &_sbss;
+    size_t bss_size = &_ebss - &_sbss;
     uint8_t *bss_dst = &_sbss;
 
     for (int i = 0; i < bss_size; i++)
@@ -94,7 +95,7 @@ __attribute__((section(".text.init"), naked, noreturn)) void _start()
         bss_dst[i] = 0;
     }
 
-    int data_size = &_edata - &_sdata;
+    size_t data_size = &_edata - &_sdata;
     uint8_t *data_src = &_sidata;
     uint8_t *data_dst = &_sdata;
 

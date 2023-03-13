@@ -59,22 +59,7 @@ void M_MakeDirectory(char *path)
 
 boolean M_FileExists(char *filename)
 {
-    FILE *fstream;
-
-    fstream = fopen(filename, "r");
-
-    if (fstream != NULL)
-    {
-        fclose(fstream);
-        return true;
-    }
-    else
-    {
-        // If we can't open because the file is a directory, the
-        // "file" exists at least!
-
-        return errno == EISDIR;
-    }
+    return true;
 }
 
 //
