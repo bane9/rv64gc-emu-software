@@ -17,7 +17,7 @@ OBJCOPY=riscv64-unknown-elf-objcopy
 CFLAGS+= -O3 -mcmodel=medany -mabi=lp64d -march=rv64gc -nostartfiles $(INCLUDES)
 LDFLAGS+= -Tbaremetal.ld -Wl,--no-warn-rwx-segments -flto
 CFLAGS+= -Wall
-EMULATOR=riscv_emu
+EMULATOR=rv64gc_emu
 FONT=font.ttf
 
 HOSTCC=gcc
@@ -59,7 +59,7 @@ print:
 	@echo OBJS: $(OBJS)
 
 run:
-	./$(EMULATOR) $(OUTPUT).bin $(FONT)
+	./$(EMULATOR) --bios $(OUTPUT).bin --font $(FONT)
 
 IWAD := $(shell find . -iname '*.wad' | head -n 1 | tr '[:upper:]' '[:lower:]')
 

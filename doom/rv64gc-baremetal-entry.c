@@ -42,15 +42,6 @@ int _putc_r(struct _reent *u1, int ch, FILE *u2)
     return 0;
 }
 
-int main()
-{
-    char *argv[] = {"doom", "-iwad", DOOM_FILENAME, NULL};
-    int argc = sizeof(argv) / sizeof(argv[0]) - 1;
-
-    extern void doom_main(int argc, char **argv);
-    doom_main(argc, argv);
-}
-
 __attribute__((naked)) void trap_vector(void)
 {
     __asm__ volatile(".option norvc;"
@@ -69,7 +60,7 @@ __attribute__((naked)) void trap_vector(void)
                      ".option rvc;");
 }
 
-__attribute__((section(".text.init"), naked, noreturn)) void _start()
+__attribute__((section(".text.init"), noreturn)) void _start()
 {
     __asm__ volatile(".option push;"
                      ".option norelax;"
@@ -122,7 +113,12 @@ __attribute__((section(".text.init"), naked, noreturn)) void _start()
         (*entry)();
     }
 
-    main();
+    extern int main(int argc, char **argv);
+
+    char *argv[] = {"doom", "-iwad", DOOM_FILENAME, NULL};
+    int argc = sizeof(argv) / sizeof(argv[0]) - 1;
+
+    main(argc, argv);
 
     extern function_t __fini_array_start;
     extern function_t __fini_array_end;
@@ -133,7 +129,7 @@ __attribute__((section(".text.init"), naked, noreturn)) void _start()
     }
 
     asm volatile("csrw mtvec, 0;"
-                 "ecall;");
+                 "ecall;"); // Cause emulator to exit
 
     while (1)
         ;

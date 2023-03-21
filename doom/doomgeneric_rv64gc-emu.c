@@ -15,40 +15,21 @@ int DOOMGENERIC_CHANNELS;
 
 void get_fb_info()
 {
-  uint64_t x = 0;
-  uint64_t y = 0;
+  uint32_t resolution = *(uint32_t *)fb_dimensions;
 
-  asm volatile("li t0, 0xffff;"
-               "li t1, %2;"
-               "lw t1, 0(t1);"
-               "and %1, t1, t0;"
-               "srli %0, t1, 16;"
-               "and %0, %0, t0;"
-               : "=r"(y), "=r"(x)
-               : "i"(fb_dimensions)
-               : "t0", "t1");
-
-  DOOMGENERIC_RESX = x;
-  DOOMGENERIC_RESY = y;
+  DOOMGENERIC_RESX = resolution & 0xffff;
+  DOOMGENERIC_RESY = (resolution >> 16) & 0xffff;
   DOOMGENERIC_CHANNELS = *fb_channels;
 }
 
 void set_terminal_resolution(uint64_t cols, uint64_t rows)
 {
-  asm volatile("li t0, %1;"
-               "sw %0, 0(t0);"
-               :
-               : "r"((rows << 16) | cols), "i"(term_dimensions)
-               : "t0", "memory");
+  *(uint32_t *)term_dimensions = (rows << 16) | cols;
 }
 
 void set_resolution(uint64_t width, uint64_t height)
 {
-  asm volatile("li t0, %1;"
-               "sw %0, 0(t0);"
-               :
-               : "r"((height << 16) | width), "i"(fb_dimensions)
-               : "t0", "memory");
+  *(uint32_t *)fb_dimensions = (height << 16) | width;
 }
 
 void DG_Init()

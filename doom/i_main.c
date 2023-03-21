@@ -36,7 +36,7 @@ void M_FindResponseFile(void);
 
 void dg_Create();
 
-void doom_main(int argc, char **argv)
+int main(int argc, char **argv)
 {
     // save arguments
 
