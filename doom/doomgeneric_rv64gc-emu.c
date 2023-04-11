@@ -56,7 +56,7 @@ void DG_SleepMs(uint32_t ms)
 uint32_t DG_GetTicksMs()
 {
   uint64_t result;
-  asm volatile("rdtime %0"
+  asm volatile("csrr %0, 0xc10;"
                : "=r"(result));
   return result;
 }

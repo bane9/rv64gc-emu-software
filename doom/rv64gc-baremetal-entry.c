@@ -42,33 +42,56 @@ int _putc_r(struct _reent *u1, int ch, FILE *u2)
     return 0;
 }
 
-__attribute__((naked)) void trap_vector(void)
+__attribute__((interrupt)) void irq_handler()
 {
-    __asm__ volatile(".option norvc;"
-                     "mret;"
-                     "mret;"
-                     "mret;"
-                     "mret;"
-                     "mret;"
-                     "mret;"
-                     "mret;"
-                     "mret;"
-                     "mret;"
-                     "mret;"
-                     "mret;"
-                     "mret;"
-                     ".option rvc;");
+    uint64_t mcause = 0;
+
+    asm volatile("csrr %0, mcause"
+                 : "=r"(mcause));
+
+    if ((mcause & (1ULL << 63ULL)) == 0)
+    {
+        uint64_t mepc;
+
+        asm volatile("csrr %0, mepc"
+                     : "=r"(mepc));
+
+        mepc += 4;
+
+        asm volatile("csrw mepc, %0"
+                     :
+                     : "r"(mepc));
+    }
+}
+
+__attribute__((naked, aligned(4))) void trap_vector(void)
+{
+    asm volatile(".option norvc;"
+                 "j irq_handler;"
+                 "j irq_handler;"
+                 "j irq_handler;"
+                 "j irq_handler;"
+                 "j irq_handler;"
+                 "j irq_handler;"
+                 "j irq_handler;"
+                 "j irq_handler;"
+                 "j irq_handler;"
+                 "j irq_handler;"
+                 "j irq_handler;"
+                 "j irq_handler;"
+                 ".option rvc;");
 }
 
 __attribute__((section(".text.init"), noreturn)) void _start()
 {
-    __asm__ volatile(".option push;"
-                     ".option norelax;"
-                     "la    gp, __global_pointer$;"
-                     ".option pop;"
-                     "csrw mtvec, %0;"
-                     :
-                     : "r"((uintptr_t)trap_vector | 1));
+    asm volatile(".option push;"
+                 ".option norelax;"
+                 "la    gp, __global_pointer$;"
+                 ".option pop;"
+                 "csrw mtvec, %0;"
+                 "csrw fcsr, 1;"
+                 :
+                 : "r"((uintptr_t)trap_vector | 1));
 
     extern uint8_t _sidata;
 
