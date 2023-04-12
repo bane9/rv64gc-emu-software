@@ -92,8 +92,12 @@ key keys[] = {
 
     {.host_key = 'Q',
      .doom_key = KEY_ESCAPE},
+
+    {.host_key = 'P'},
 };
 const int keys_size = sizeof(keys) / sizeof(keys[0]);
+
+int speed_toggle = 0;
 
 int DG_GetKey(int *pressed, unsigned char *doomKey)
 {
@@ -111,17 +115,32 @@ int DG_GetKey(int *pressed, unsigned char *doomKey)
       else
       {
         keys[i].state = 0;
-        *doomKey = keys[i].doom_key;
-        *pressed = 0;
-        return 1;
+        if (c == 'P')
+        {
+          return 0;
+        }
+        else
+        {
+          *doomKey = keys[i].doom_key;
+          *pressed = 0;
+          return 1;
+        }
       }
     }
     else if (keys[i].host_key == c)
     {
       keys[i].state = 1;
-      *doomKey = keys[i].doom_key;
-      *pressed = 1;
-      return 1;
+      if (c == 'P')
+      {
+        speed_toggle = !speed_toggle;
+        return 0;
+      }
+      else
+      {
+        *doomKey = keys[i].doom_key;
+        *pressed = 1;
+        return 1;
+      }
     }
   }
 
