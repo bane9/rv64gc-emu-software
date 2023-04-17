@@ -1,1 +1,5 @@
 .DS_Store
+output/
+rv64gc_emu*
+*.wad
+*.dtb

@@ -56,9 +56,9 @@ void DG_SleepMs(uint32_t ms)
 uint32_t DG_GetTicksMs()
 {
   uint64_t result;
-  asm volatile("csrr %0, 0xc10;"
+  asm volatile("rdtime %0;"
                : "=r"(result));
-  return result;
+  return result / 1000;
 }
 
 typedef struct

@@ -1,0 +1,82 @@
+/dts-v1/;
+
+/ {
+    #address-cells = <0x02>;
+    #size-cells = <0x02>;
+    compatible = "riscv-isa";
+    model = "riscv-custom";
+
+    chosen {
+        bootargs = "console=ttyS";
+        stdout-path = "/soc/uart@10000000";
+    };
+
+    cpus {
+        #address-cells = <0x01>;
+        #size-cells = <0x00>;
+        timebase-frequency = <1000000>;
+
+        cpu-map {
+            cluster0 {
+                core0 {
+                    cpu = <0x01>;
+                };
+            };
+        };
+
+        cpu@0 {
+            phandle = <0x01>;
+            device_type = "cpu";
+            reg = <0x00>;
+            status = "okay";
+            compatible = "riscv";
+            riscv,isa = "rv64imafdcsu";
+            mmu-type = "riscv,sv39";
+
+            cpu_intc: interrupt-controller {
+                #interrupt-cells = <0x01>;
+                #address-cells = <0x01>;
+                interrupt-controller;
+                compatible = "riscv,cpu-intc";
+                phandle = <0x02>;
+            };
+        };
+    };
+
+	memory@80000000 {
+		device_type = "memory";
+        reg = <0x0 0x80000000 0x0 0x0badc0de>;
+	};
+
+    soc {
+        #address-cells = <0x02>;
+        #size-cells = <0x02>;
+        compatible = "simple-bus";
+        ranges;
+
+        plic@c000000 {
+            phandle = <0x03>;
+            riscv,ndev = <0x35>;
+            reg = <0x00 0xc000000 0x00 0x2100000>;
+            interrupts-extended = <&cpu_intc 0x0b &cpu_intc 0x09>;
+            interrupt-controller;
+            compatible = "riscv,plic0";
+            #interrupt-cells = <0x01>;
+            #address-cells = <0x00>;
+        };
+
+        uart@10000000 {
+            interrupts = <0xa>;
+            interrupt-parent = <0x03>;
+            clock-frequency = <0x384000>;
+            reg = <0x0 0x10000000 0x0 0x100>;
+            compatible = "ns16550a";
+        };
+
+        clint@2000000 {
+            interrupts-extended = <&cpu_intc 0x03 &cpu_intc 0x07>;
+            reg = <0x00 0x2000000 0x00 0x10000>;
+            compatible = "riscv,clint0";
+        };
+    };
+};
