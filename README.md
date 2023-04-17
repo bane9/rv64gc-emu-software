@@ -17,7 +17,28 @@ Initially, compile the emulator by adhering to the instructions available in [th
 
 ## Building Linux
 
+![DOOM](images/linux.png)
 
+To build the Linux kernel and OpenSBI bootloader for this emulator, first install the dependencies (Linux only):
+
+```bash
+sudo apt install -y git build-essential wget cpio unzip rsync bc libncurses5-dev screen bison file flex 
+```
+
+After that, execute the build with:
+```bash
+make linux
+```
+
+Then, run it via the following command:
+```bash
+cd output/
+./run_linux.sh
+```
+
+When the emulator is compiled using the Native CLI flag, it results in faster load times for Linux.
+
+Currenly, the kernel gets stuck during initalization at `Freeing unused kernel image (initmem) memory`. The kernel itself is not frozen, but it's unclear why it doesn't schedule init as of now.
 
 ## DOOM Port
 
@@ -34,9 +55,13 @@ cd output/
 ./doom_baremetal.sh
 ```
 
+Please note that this will not work if the emulator was compiled with the Native CLI flag.
+
 ## Dependencies and Credits
 
 - [MesloLGS NF Regular font](https://github.com/romkatv/dotfiles-public/blob/master/.local/share/fonts/NerdFonts/MesloLGS%20NF%20Regular.ttf) - included as font.ttf in the `misc` folder
+- [doomgeneric](https://github.com/ozkl/doomgeneric) - used as a DOOM port
+- [buildroot](https://buildroot.org/) - used for the Linux build environment
 
 ## License
 
