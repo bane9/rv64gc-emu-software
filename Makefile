@@ -6,7 +6,7 @@ DOOM_BARE := doom_baremetal
 FONT_NAME := font.ttf
 FONT_PATH := misc/$(FONT_NAME)
 
-.PHONY: doom_baremetal
+.PHONY: doom_baremetal run_doom_baremetal
 doom_baremetal:
 	@if [ -z "$(EMULATOR)" ]; then \
 		echo "Please include a built emulator executable in the root of this directory"; \
@@ -31,36 +31,37 @@ doom_baremetal:
 
 	@echo "#!/bin/sh\n./$(EMULATOR) --bios $(DOOM_BARE).bin --font $(FONT_NAME)" > $(OUTPUT)/$(DOOM_BARE).sh
 
-	@echo "Compilation done, run the program with the following command: \"cd $(OUTPUT) && ./$(DOOM_BARE).sh\""
+	@echo "Compilation done, run the program with: make run_doom_baremetal"
+
+run_doom_baremetal:
+	@cd $(OUTPUT) && ./$(DOOM_BARE).sh
 
 LINUX_DIR := linux
 LINUX_BULD_SH := build_linux.sh
 IMAGES_DIR := $(LINUX_DIR)/buildroot/output/images
 RUN_LINUX_SH := run_linux.sh
 
-.PHONY: linux
+.PHONY: linux run_linux
 linux:
 	@if [ -z "$(EMULATOR)" ]; then \
 		echo "Please include a built emulator executable in the root of this directory"; \
 		exit 1; \
-	fi
+	fi;
 
-	@cd $(LINUX_DIR)
+	cd $(LINUX_DIR) && ./$(LINUX_BULD_SH);
+	@mkdir -p $(OUTPUT);
 
-	./$(LINUX_BULD_SH)
+	@cp $(IMAGES_DIR)/fw_jump.bin $(OUTPUT)/;
+	@cp $(IMAGES_DIR)/Image $(OUTPUT)/;
 
-	@cd ..
+	@dtc -I dts -O dtb $(LINUX_DIR)/dts/dts.dts > $(OUTPUT)/dtb.dtb;
 
-	@mkdir -p $(OUTPUT)
+	@cp $(EMULATOR) $(OUTPUT)/;
+	@cp $(FONT_PATH) $(OUTPUT)/;
 
-	@cp $(IMAGES_DIR)/fw_jump.bin $(OUTPUT)/
-	@cp $(IMAGES_DIR)/Image $(OUTPUT)/
+	@echo "#!/bin/sh\n./$(EMULATOR) --bios fw_jump.bin --kernel Image --dtb dtb.dtb --font $(FONT_NAME)" > $(OUTPUT)/$(RUN_LINUX_SH);
 
-	@dtc -I dts -O dtb $(LINUX_DIR)/dts/dts.dts > $(OUTPUT)/dtb.dtb
+	@echo "Build done, run linux with: make run_linux";
 
-	@cp $(EMULATOR) $(OUTPUT)/
-	@cp $(FONT_PATH) $(OUTPUT)/
-
-	@echo "#!/bin/sh\n./$(EMULATOR) --bios fw_jump.bin --kernel Image --dtb dtb.dtb --font $(FONT_NAME)" > $(OUTPUT)/$(RUN_LINUX_SH)
-
-	@echo "Build done, run linux with the following command: \"cd $(OUTPUT) && ./$(RUN_LINUX_SH)\""
+run_linux:
+	@cd $(OUTPUT) && ./$(RUN_LINUX_SH)

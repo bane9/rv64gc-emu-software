@@ -3,8 +3,8 @@
 BUILDROOT_VER="2023.02"
 LINUX_VER="5.15.43"
 
-BUILDROOT_CONFIG="config_rv64gc_emu_buildroot"
-LINUX_CONFIG="config_rv64gc_emu_linux"
+BUILDROOT_CONFIG="buildroot_conf.config"
+LINUX_CONFIG="linux_conf.config"
 
 if [ ! -d "buildroot" ]; then
     echo "Buildroot folder not found. Downloading..."
@@ -15,14 +15,13 @@ if [ ! -d "buildroot" ]; then
     mv buildroot-$BUILDROOT_VER buildroot
 fi
 
-cp $BUILDROOT_CONFIG buildroot/.config
 cd buildroot
-make oldconfig
+make qemu_riscv64_virt_defconfig
+cp ../$BUILDROOT_CONFIG .config
 
-make -j $(nproc)
+make linux-menuconfig -j $(nproc)
 
 cp ../$LINUX_CONFIG output/build/linux-$LINUX_VER/.config
-make linux-update-config
 
 make -j $(nproc)
 

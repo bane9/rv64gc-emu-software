@@ -32,13 +32,12 @@ make linux
 
 Then, run it via the following command:
 ```bash
-cd output/
-./run_linux.sh
+make run_linux
 ```
 
-When the emulator is compiled using the Native CLI flag, it results in faster load times for Linux.
+When the emulator is compiled using the Native CLI flag, it results in faster boot times for Linux.
 
-Currenly, the kernel gets stuck during initalization at `Freeing unused kernel image (initmem) memory`. The kernel itself is not frozen, but it's unclear why it doesn't schedule init as of now.
+Currenly, a page fault happens when the kernel tries to initialize userspace for init. It is still unknow why this is happening.
 
 ## DOOM Port
 
@@ -51,8 +50,7 @@ make doom_baremetal
 
 Next, to run the port, use the following command: 
 ```bash
-cd output/
-./doom_baremetal.sh
+make run_doom_baremetal
 ```
 
 Please note that this will not work if the emulator was compiled with the Native CLI flag.

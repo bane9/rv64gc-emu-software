@@ -3,12 +3,12 @@
 / {
     #address-cells = <0x02>;
     #size-cells = <0x02>;
-    compatible = "riscv-isa";
-    model = "riscv-custom";
+    compatible = "riscv-virtio";
+    model = "riscv-virtio,qemu";
 
     chosen {
-        bootargs = "console=ttyS";
-        stdout-path = "/soc/uart@10000000";
+        bootargs = "root=/dev/vda rw console=ttyS earlycon=sbi";
+        stdout-path = "/uart@10000000";
     };
 
     cpus {
@@ -33,9 +33,8 @@
             riscv,isa = "rv64imafdcsu";
             mmu-type = "riscv,sv39";
 
-            cpu_intc: interrupt-controller {
+            cpu0_intc: interrupt-controller {
                 #interrupt-cells = <0x01>;
-                #address-cells = <0x01>;
                 interrupt-controller;
                 compatible = "riscv,cpu-intc";
                 phandle = <0x02>;
@@ -45,7 +44,7 @@
 
 	memory@80000000 {
 		device_type = "memory";
-        reg = <0x0 0x80000000 0x0 0x0badc0de>;
+		reg = <0x0 0x80000000 0x0 0x0badc0de>;
 	};
 
     soc {
@@ -54,29 +53,36 @@
         compatible = "simple-bus";
         ranges;
 
-        plic@c000000 {
+        plic0: interrupt-controller@c000000 {
             phandle = <0x03>;
             riscv,ndev = <0x35>;
-            reg = <0x00 0xc000000 0x00 0x2100000>;
-            interrupts-extended = <&cpu_intc 0x0b &cpu_intc 0x09>;
+            reg = <0x00 0xc000000 0x00 0x4000000>;
+            interrupts-extended = <&cpu0_intc 0x0b &cpu0_intc 0x09>;
             interrupt-controller;
             compatible = "riscv,plic0";
             #interrupt-cells = <0x01>;
             #address-cells = <0x00>;
         };
 
+        clint@2000000 {
+            interrupts-extended = <&cpu0_intc 0x03 &cpu0_intc 0x07>;
+            reg = <0x00 0x2000000 0x00 0x10000>;
+            compatible = "riscv,clint0";
+        };
+
         uart@10000000 {
             interrupts = <0xa>;
-            interrupt-parent = <0x03>;
+            interrupt-parent = <&plic0>;
             clock-frequency = <0x384000>;
             reg = <0x0 0x10000000 0x0 0x100>;
             compatible = "ns16550a";
         };
 
-        clint@2000000 {
-            interrupts-extended = <&cpu_intc 0x03 &cpu_intc 0x07>;
-            reg = <0x00 0x2000000 0x00 0x10000>;
-            compatible = "riscv,clint0";
+        virtio_mmio@10001000 {
+            interrupts = <0x01>;
+            interrupt-parent = <&plic0>;
+            reg = <0x0 0x10001000 0x0 0x1000>;
+            compatible = "virtio,mmio";
         };
     };
 };
