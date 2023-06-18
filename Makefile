@@ -30,6 +30,7 @@ doom_baremetal:
 	@cp $(FONT_PATH) $(OUTPUT)/
 
 	@echo "#!/bin/sh\n./$(EMULATOR) --bios $(DOOM_BARE).bin --font $(FONT_NAME)" > $(OUTPUT)/$(DOOM_BARE).sh
+	chmod 777 $(OUTPUT)/$(DOOM_BARE).sh
 
 	@echo "Compilation done, run the program with: make run_doom_baremetal"
 
@@ -60,6 +61,7 @@ linux:
 	@cp $(FONT_PATH) $(OUTPUT)/;
 
 	@echo "#!/bin/sh\n./$(EMULATOR) --bios fw_jump.bin --kernel Image --dtb dtb.dtb --font $(FONT_NAME)" > $(OUTPUT)/$(RUN_LINUX_SH);
+	chmod 777 $(OUTPUT)/$(RUN_LINUX_SH);
 
 	@echo "Build done, run linux with: make run_linux";
 

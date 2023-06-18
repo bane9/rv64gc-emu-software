@@ -1,10 +1,9 @@
 #!/bin/bash
 
-BUILDROOT_VER="2023.02"
+BUILDROOT_VER="2023.02.2"
 LINUX_VER="5.15.43"
 
-BUILDROOT_CONFIG="buildroot_conf.config"
-LINUX_CONFIG="linux_conf.config"
+BUILDROOT_CONFIG="rv64gcemu_defconfig"
 
 if [ ! -d "buildroot" ]; then
     echo "Buildroot folder not found. Downloading..."
@@ -15,16 +14,10 @@ if [ ! -d "buildroot" ]; then
     mv buildroot-$BUILDROOT_VER buildroot
 fi
 
+mkdir overlay
+
 cd buildroot
-make qemu_riscv64_virt_defconfig
-cp ../$BUILDROOT_CONFIG .config
+make defconfig BR2_DEFCONFIG=../$BUILDROOT_CONFIG
 
-make linux-menuconfig -j $(nproc)
+make -j$(nproc)
 
-cp ../$LINUX_CONFIG output/build/linux-$LINUX_VER/.config
-
-make -j $(nproc)
-
-cd ..
-
-echo "Build completed successfully."

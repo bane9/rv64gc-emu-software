@@ -37,8 +37,6 @@ make run_linux
 
 When the emulator is compiled using the Native CLI flag, it results in faster boot times for Linux.
 
-Currenly, a page fault happens when the kernel tries to initialize userspace for init. It is still unknow why this is happening.
-
 ## DOOM Port
 
 ![DOOM](images/doom.png)

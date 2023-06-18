@@ -7,7 +7,7 @@
     model = "riscv-virtio,qemu";
 
     chosen {
-        bootargs = "root=/dev/vda rw console=ttyS earlycon=sbi";
+        bootargs = "root=/dev/mem rw console=ttyS earlycon=sbi";
         stdout-path = "/uart@10000000";
     };
 
@@ -47,6 +47,26 @@
 		reg = <0x0 0x80000000 0x0 0x0badc0de>;
 	};
 
+    syscon: syscon@11100000 {
+        phandle = <0x4>;
+        reg = <0x00 0x11100000 0x00 0x1000>;
+        compatible = "sifive,test1\0sifive,test0\0syscon\0";
+    };
+
+    poweroff {
+        value = <0x5555>;
+        offset = <0x00>;
+        regmap = <&syscon>;
+        compatible = "syscon-poweroff";
+    };
+
+    reboot {
+        value = <0x7777>;
+        offset = <0x00>;
+        regmap = <&syscon>;
+        compatible = "syscon-reboot";
+    };
+
     soc {
         #address-cells = <0x02>;
         #size-cells = <0x02>;
@@ -76,13 +96,6 @@
             clock-frequency = <0x384000>;
             reg = <0x0 0x10000000 0x0 0x100>;
             compatible = "ns16550a";
-        };
-
-        virtio_mmio@10001000 {
-            interrupts = <0x01>;
-            interrupt-parent = <&plic0>;
-            reg = <0x0 0x10001000 0x0 0x1000>;
-            compatible = "virtio,mmio";
         };
     };
 };
