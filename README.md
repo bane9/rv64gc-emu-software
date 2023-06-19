@@ -63,8 +63,8 @@ Then clone, configure and install [
 riscv-gnu-toolchain](https://github.com/riscv-collab/riscv-gnu-toolchain):
 ```bash
 git clone https://github.com/riscv-collab/riscv-gnu-toolchain.git
-./configure --prefix=/opt/riscv --with-cmodel=medany
 cd riscv-gnu-toolchain
+./configure --prefix=/opt/riscv --with-cmodel=medany
 sudo make linux
 echo 'export PATH="/opt/riscv/bin/:\$PATH"' >> ~/.bashrc
 ```
