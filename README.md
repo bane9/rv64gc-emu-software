@@ -8,6 +8,7 @@ Contained within this repository are the Linux buildroot configuration and a por
 - [Setup](#setup)
 - [Building Linux](#building-linux)
 - [DOOM Port](#doom-port)
+- [Linux with DOOM](#linux-with-doom)
 - [Dependencies and Credits](#dependencies-and-credits)
 - [License](#license)
 
@@ -51,7 +52,40 @@ Next, to run the port, use the following command:
 make run_doom_baremetal
 ```
 
-Please note that this will not work if the emulator was compiled with the Native CLI flag.
+## Linux with DOOM
+To build and run DOOM under Linux, first you need to compile riscv64 gnu toolchain with libc.
+To do that, first install the dependencies:
+``` bash
+sudo apt-get install autoconf automake autotools-dev curl python3 python3-pip libmpc-dev libmpfr-dev libgmp-dev gawk build-essential bison flex texinfo gperf libtool patchutils bc zlib1g-dev libexpat-dev ninja-build git cmake libglib2.0-dev
+```
+
+Then clone, configure and install [
+riscv-gnu-toolchain](https://github.com/riscv-collab/riscv-gnu-toolchain):
+```bash
+git clone https://github.com/riscv-collab/riscv-gnu-toolchain.git
+./configure --prefix=/opt/riscv --with-cmodel=medany
+cd riscv-gnu-toolchain
+sudo make linux
+echo 'export PATH="/opt/riscv/bin/:\$PATH"' >> ~/.bashrc
+```
+
+Then, restart your terminal and from the root of this git directory do:
+```bash
+make linux_with_doom
+```
+
+And run it with
+```bash
+make run_linux
+```
+
+When Linux boots and you get `Buildroot login:` prompt, enter `root`.
+After that, run doom by typing in:
+```bash
+/doom/doom
+```
+
+Please note that running DOOM will not work if the emulator was compiled with the Native CLI flag.
 
 ## Dependencies and Credits
 

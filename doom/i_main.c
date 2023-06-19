@@ -23,6 +23,7 @@
 // #include "doomtype.h"
 // #include "i_system.h"
 #include "m_argv.h"
+#include "doom_iwad.h"
 
 //
 // D_DoomMain()
@@ -36,12 +37,15 @@ void M_FindResponseFile(void);
 
 void dg_Create();
 
-int main(int argc, char **argv)
+static char *priv_argv[] = {"doom", "-iwad", DOOM_FILENAME, NULL};
+static int priv_argc = sizeof(priv_argv) / sizeof(priv_argv[0]) - 1;
+
+int main(void)
 {
     // save arguments
 
-    myargc = argc;
-    myargv = argv;
+    myargc = priv_argc;
+    myargv = priv_argv;
 
     M_FindResponseFile();
 

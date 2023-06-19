@@ -254,6 +254,8 @@ void I_UpdateNoBlit(void)
 // I_FinishUpdate
 //
 
+extern volatile unsigned char *DOOMGENERIC_FB;
+
 void I_FinishUpdate(void)
 {
     const int x_size = DOOMGENERIC_RESX;
@@ -273,7 +275,7 @@ void I_FinishUpdate(void)
             const int y2_x2_colors = y2_xsource + x2;
             const int i_x_colors = i_xdest + x;
 
-            uint8_t *fb = framebuffer_start + i_x_colors * channel_size;
+            uint8_t *fb = DOOMGENERIC_FB + i_x_colors * channel_size;
 
             const struct color *c = &colors[I_VideoBuffer[y2_x2_colors]];
             fb[0] = c->r;

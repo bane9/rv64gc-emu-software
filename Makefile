@@ -42,7 +42,7 @@ LINUX_BULD_SH := build_linux.sh
 IMAGES_DIR := $(LINUX_DIR)/buildroot/output/images
 RUN_LINUX_SH := run_linux.sh
 
-.PHONY: linux run_linux
+.PHONY: linux linux_with_doom_pre linux_with_doom run_linux
 linux:
 	@if [ -z "$(EMULATOR)" ]; then \
 		echo "Please include a built emulator executable in the root of this directory"; \
@@ -64,6 +64,30 @@ linux:
 	chmod 777 $(OUTPUT)/$(RUN_LINUX_SH);
 
 	@echo "Build done, run linux with: make run_linux";
+
+OVERLAY_DIR=linux/overlay/doom
+
+linux_with_doom_pre:
+	@if [ -z "$(EMULATOR)" ]; then \
+		echo "Please include a built emulator executable in the root of this directory"; \
+		exit 1; \
+	fi
+
+	@if [ -z "$(IWAD)" ]; then \
+		echo "Please include one .wad file in the root of this directory"; \
+		exit 1; \
+	fi
+
+	@cp $(IWAD) $(DOOM)/
+
+	$(MAKE) -C $(DOOM) iwad
+	$(MAKE) -C $(DOOM) linux
+
+	@mkdir -p $(OVERLAY_DIR)
+
+	@cp $(DOOM)/doomgeneric.elf $(OVERLAY_DIR)/doom
+
+linux_with_doom: linux_with_doom_pre linux
 
 run_linux:
 	@cd $(OUTPUT) && ./$(RUN_LINUX_SH)

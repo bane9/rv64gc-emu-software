@@ -257,9 +257,7 @@ void I_Quit (void)
         entry = entry->next;
     }
 
-#if ORIGCODE
-    SDL_Quit();
-
+#if TARGET_LINUX
     exit(0);
 #endif
 }

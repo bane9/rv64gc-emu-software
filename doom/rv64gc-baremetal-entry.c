@@ -30,7 +30,7 @@ int _write(int handle, char *data, int size)
 {
     for (int i = 0; i < size; i++)
     {
-        *uart_write = data[i];
+        *uart_write_addr = data[i];
     }
 
     return size;
@@ -38,11 +38,11 @@ int _write(int handle, char *data, int size)
 
 int _putc_r(struct _reent *u1, int ch, FILE *u2)
 {
-    *uart_write = ch;
+    *uart_write_addr = ch;
     return 0;
 }
 
-__attribute__((interrupt)) void irq_handler()
+__attribute__((naked, aligned(4))) void trap_vector(void)
 {
     uint64_t mcause = 0;
 
@@ -62,36 +62,20 @@ __attribute__((interrupt)) void irq_handler()
                      :
                      : "r"(mepc));
     }
-}
 
-__attribute__((naked, aligned(4))) void trap_vector(void)
-{
-    asm volatile(".option norvc;"
-                 "j irq_handler;"
-                 "j irq_handler;"
-                 "j irq_handler;"
-                 "j irq_handler;"
-                 "j irq_handler;"
-                 "j irq_handler;"
-                 "j irq_handler;"
-                 "j irq_handler;"
-                 "j irq_handler;"
-                 "j irq_handler;"
-                 "j irq_handler;"
-                 "j irq_handler;"
-                 ".option rvc;");
+    asm volatile("mret");
 }
 
 __attribute__((section(".text.init"), noreturn)) void _start()
 {
     asm volatile(".option push;"
                  ".option norelax;"
-                 "la    gp, __global_pointer$;"
+                 "la gp, __global_pointer$;"
                  ".option pop;"
                  "csrw mtvec, %0;"
                  "csrw fcsr, 1;"
                  :
-                 : "r"((uintptr_t)trap_vector | 1));
+                 : "r"((uintptr_t)trap_vector));
 
     extern uint8_t _sidata;
 
@@ -136,12 +120,10 @@ __attribute__((section(".text.init"), noreturn)) void _start()
         (*entry)();
     }
 
-    extern int main(int argc, char **argv);
+    extern int main(void);
 
-    char *argv[] = {"doom", "-iwad", DOOM_FILENAME, NULL};
-    int argc = sizeof(argv) / sizeof(argv[0]) - 1;
-
-    main(argc, argv);
+    int rc = main();
+    (void) rc;
 
     extern function_t __fini_array_start;
     extern function_t __fini_array_end;
@@ -151,8 +133,7 @@ __attribute__((section(".text.init"), noreturn)) void _start()
         (*entry)();
     }
 
-    asm volatile("csrw mtvec, 0;"
-                 "ecall;"); // Cause emulator to exit
+    *syscon_addr = syscon_poweroff;
 
     while (1)
         ;

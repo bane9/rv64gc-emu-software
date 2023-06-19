@@ -14,9 +14,10 @@ if [ ! -d "buildroot" ]; then
     mv buildroot-$BUILDROOT_VER buildroot
 fi
 
-mkdir overlay
-
+mkdir -p overlay/
+echo $PWD
 cd buildroot
+echo $PWD
 make defconfig BR2_DEFCONFIG=../$BUILDROOT_CONFIG
 
 make -j$(nproc)
