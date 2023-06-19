@@ -78,11 +78,13 @@ linux_with_doom_pre:
 		exit 1; \
 	fi
 
+	$(MAKE) -C $(DOOM) clean
 	@cp $(IWAD) $(DOOM)/
 
 	$(MAKE) -C $(DOOM) iwad
 	$(MAKE) -C $(DOOM) linux
 
+	@-rm $(OVERLAY_DIR)
 	@mkdir -p $(OVERLAY_DIR)
 
 	@cp $(DOOM)/doomgeneric.elf $(OVERLAY_DIR)/doom

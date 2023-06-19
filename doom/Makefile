@@ -46,17 +46,15 @@ OBJS += $(addprefix $(OBJDIR)/, $(SRC_DOOM))
 all: $(OUTPUT)
 linux: $(OUTPUT)
 
-linux_clean:
-	rm -rf $(OBJDIR)
-
 clean:
-	rm -rf $(OBJDIR)
-	rm -f $(OUTPUT)
-	rm -f $(OUTPUT).bin
-	rm -f $(OUTPUT).elf
-	rm -f doom_iwad.h
-	rm -f doom_iwad.c
-	rm -f $(BIN_TO_C)
+	-rm -rf $(OBJDIR)
+	-rm $(OUTPUT)
+	-rm $(OUTPUT).bin
+	-rm $(OUTPUT).elf
+	-rm doom_iwad.h
+	-rm doom_iwad.c
+	-rm *.wad
+	-rm $(BIN_TO_C)
 
 $(OUTPUT):	$(OBJS)
 	@echo [Linking $@]

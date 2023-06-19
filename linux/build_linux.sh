@@ -1,7 +1,6 @@
 #!/bin/bash
 
 BUILDROOT_VER="2023.02.2"
-LINUX_VER="5.15.43"
 
 BUILDROOT_CONFIG="rv64gcemu_defconfig"
 
@@ -15,9 +14,9 @@ if [ ! -d "buildroot" ]; then
 fi
 
 mkdir -p overlay/
-echo $PWD
+
 cd buildroot
-echo $PWD
+
 make defconfig BR2_DEFCONFIG=../$BUILDROOT_CONFIG
 
 make -j$(nproc)

@@ -43,6 +43,7 @@ static volatile unsigned char *uart_read;
 static int term_cols;
 static int term_rows;
 
+
 void get_fb_info()
 {
   uint32_t resolution = *(uint32_t *)fb_dimensions;
@@ -82,16 +83,20 @@ void DG_Init()
 {
 #if LINUX_TARGET
   int fd = open("/dev/mem", O_RDWR | O_SYNC);
-  if (fd < 0)
-  {
+  if (fd < 0) {
     perror("Failed to open /dev/mem");
     exit(1);
   }
 
   fb_render = mmap(NULL, 5 * sizeof(uint32_t) + TARGET_RESX * TARGET_RESY * TARGET_CHANNELS, PROT_READ | PROT_WRITE, MAP_SHARED, fd, fb_render_addr);
-  if (fb_dimensions == MAP_FAILED)
-  {
+  if (fb_dimensions == MAP_FAILED) {
     perror("Failed to mmap fb_dimensions");
+    exit(1);
+  }
+
+  uart_read = mmap(NULL, 1, PROT_READ | PROT_WRITE, MAP_SHARED, fd, uart_read_addr);
+  if (fb_dimensions == MAP_FAILED) {
+    perror("Failed to mmap uart_read");
     exit(1);
   }
 
@@ -118,10 +123,10 @@ void DG_Init()
   atexit(cleanup);
   at_quick_exit(cleanup);
 #else
-  fb_render = fb_render_addr;
+  fb_dimensions = fb_dimensions_addr;
   fb_channels = fb_channels_addr;
   term_dimensions = term_dimensions_addr;
-  fb_dimensions = fb_dimensions_addr;
+  fb_render = fb_render_addr;
   uart_read = uart_read_addr;
   DOOMGENERIC_FB = framebuffer_start_addr;
 #endif
@@ -173,7 +178,7 @@ key keys[] = {
     {.host_key = 'D',
      .doom_key = KEY_RIGHTARROW},
 
-    {.host_key = '\n',
+    {.host_key = 'O',
      .doom_key = KEY_ENTER},
 
     {.host_key = ' ',
@@ -197,45 +202,11 @@ const int keys_size = sizeof(keys) / sizeof(keys[0]);
 
 int speed_toggle = 0;
 
-#if LINUX_TARGET
-static char getCharFromStdin(void)
-{
-  fd_set fds;
-  struct timeval timeout;
-  char ch = '\0';
-
-  FD_ZERO(&fds);
-  FD_SET(STDIN_FILENO, &fds);
-
-  timeout.tv_sec = 0; // Set timeout to zero for non-blocking check
-  timeout.tv_usec = 0;
-
-  int ready = select(STDIN_FILENO + 1, &fds, NULL, NULL, &timeout);
-  if (ready == -1)
-  {
-    perror("select");
-    return '\0';
-  }
-
-  if (FD_ISSET(STDIN_FILENO, &fds))
-  {
-    ch = getchar();
-    return ch;
-  }
-
-  return '\0';
-}
-#endif
-
 int DG_GetKey(int *pressed, unsigned char *doomKey)
 {
   char c;
 
-#if LINUX_TARGET
-  c = getCharFromStdin();
-#else
   c = *uart_read;
-#endif
 
   c = toupper(c);
 
