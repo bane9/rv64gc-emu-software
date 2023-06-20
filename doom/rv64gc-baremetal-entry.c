@@ -42,7 +42,7 @@ int _putc_r(struct _reent *u1, int ch, FILE *u2)
     return 0;
 }
 
-__attribute__((naked, aligned(4))) void trap_vector(void)
+__attribute__((interrupt, aligned(4))) void trap_vector(void)
 {
     uint64_t mcause = 0;
 
@@ -62,8 +62,6 @@ __attribute__((naked, aligned(4))) void trap_vector(void)
                      :
                      : "r"(mepc));
     }
-
-    asm volatile("mret");
 }
 
 __attribute__((section(".text.init"), noreturn)) void _start()
